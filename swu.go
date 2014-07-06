@@ -1,6 +1,7 @@
 package swu
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,12 +20,21 @@ type SWUClient struct {
 }
 
 type SWUEmail struct {
-	Tags     []string `json:"tags"`
-	Created  int64    `json:"created"`
-	Versions []struct {
-		Name string `json:"name"`
-		ID   string `json:"id"`
-	} `json:"versions"`
+	ID       string       `json:"id"`
+	Tags     []string     `json:"tags"`
+	Created  int64        `json:"created"`
+	Versions []SWEVersion `json:"versions"`
+	Name     string       `json:"name"`
+}
+
+type SWEVersion struct {
+	Name      string `json:"name"`
+	ID        string `json:"id"`
+	Created   int64  `json:"created"`
+	HTML      string `json:"html"`
+	Text      string `json:"text"`
+	Subject   string `json:"subject"`
+	Published bool   `json:"published"`
 }
 
 type SWUError struct {
@@ -33,7 +43,7 @@ type SWUError struct {
 }
 
 func (e *SWUError) Error() string {
-	return fmt.Printf("swg.go: Status code: %d, Error: %s", e.Code, e.Message)
+	return fmt.Sprintf("swu.go: Status code: %d, Error: %s", e.Code, e.Message)
 }
 
 func New(apiKey string) *SWUClient {
@@ -44,8 +54,21 @@ func New(apiKey string) *SWUClient {
 	}
 }
 
-func (c *SWUClient) Emails() {
+func (c *SWUClient) Templates() ([]SWUEmail, error) {
+	return c.Emails()
+}
 
+func (c *SWUClient) Emails() ([]SWUEmail, error) {
+	res, err := c.makeRequest("GET", "/templates", nil)
+	if err != nil {
+		return nil, err
+	}
+	var parse []SWUEmail
+	err = buildRespJSON(res.Body, &parse)
+	if err != nil {
+		return nil, err
+	}
+	return parse, err
 }
 
 func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader) (*http.Response, error) {
@@ -56,7 +79,39 @@ func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader) (*http.
 	if err != nil {
 		return nil, &SWUError{
 			Code:    res.StatusCode,
-			Message: err,
+			Message: err.Error(),
 		}
 	}
+	if res.StatusCode >= 300 {
+		return nil, buildError(res)
+	}
+	return res, nil
+}
+
+func buildError(resp *http.Response) error {
+	defer resp.Body.Close()
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return &SWUError{
+			Code:    resp.StatusCode,
+			Message: err.Error(),
+		}
+	}
+	return &SWUError{
+		Code:    resp.StatusCode,
+		Message: string(b),
+	}
+}
+
+func buildRespJSON(body io.ReadCloser, parse interface{}) error {
+	defer body.Close()
+	b, err := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, parse)
+	if err != nil {
+		return err
+	}
+	return nil
 }
