@@ -23,11 +23,11 @@ type SWUEmail struct {
 	ID       string       `json:"id"`
 	Tags     []string     `json:"tags"`
 	Created  int64        `json:"created"`
-	Versions []SWEVersion `json:"versions"`
+	Versions []SWUVersion `json:"versions"`
 	Name     string       `json:"name"`
 }
 
-type SWEVersion struct {
+type SWUVersion struct {
 	Name      string `json:"name"`
 	ID        string `json:"id"`
 	Created   int64  `json:"created"`
@@ -59,59 +59,52 @@ func (c *SWUClient) Templates() ([]SWUEmail, error) {
 }
 
 func (c *SWUClient) Emails() ([]SWUEmail, error) {
-	res, err := c.makeRequest("GET", "/templates", nil)
-	if err != nil {
-		return nil, err
-	}
 	var parse []SWUEmail
-	err = buildRespJSON(res.Body, &parse)
-	if err != nil {
-		return nil, err
-	}
+	err := c.makeRequest("GET", "/templates", nil, &parse)
 	return parse, err
 }
 
-func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader) (*http.Response, error) {
+func (c *SWUClient) GetTemplate(id string) (SWUEmail, error) {
+	var parse SWUEmail
+	err := c.makeRequest("GET", "/templates/"+id, nil, &parse)
+	return parse, err
+}
+
+func (c *SWUClient) GetTemplateVersion(id, version string) (SWUVersion, error) {
+	var parse SWUVersion
+	err := c.makeRequest("GET", "/templates/"+id+"/versions/"+version, nil, &parse)
+	return parse, err
+}
+
+func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result interface{}) error {
 	r, _ := http.NewRequest(method, c.URL+endpoint, body)
 	r.SetBasicAuth(c.apiKey, "")
 	r.Header.Set("X-SWU-API-CLIENT", APIHeaderClient)
 	res, err := c.Client.Do(r)
 	if err != nil {
-		return nil, &SWUError{
+		return &SWUError{
+			Code:    res.StatusCode,
+			Message: err.Error(),
+		}
+	}
+	defer res.Body.Close()
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return &SWUError{
 			Code:    res.StatusCode,
 			Message: err.Error(),
 		}
 	}
 	if res.StatusCode >= 300 {
-		return nil, buildError(res)
-	}
-	return res, nil
-}
-
-func buildError(resp *http.Response) error {
-	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
 		return &SWUError{
-			Code:    resp.StatusCode,
-			Message: err.Error(),
+			Code:    res.StatusCode,
+			Message: string(b),
 		}
 	}
-	return &SWUError{
-		Code:    resp.StatusCode,
-		Message: string(b),
-	}
+	return buildRespJSON(b, result)
 }
 
-func buildRespJSON(body io.ReadCloser, parse interface{}) error {
-	defer body.Close()
-	b, err := ioutil.ReadAll(body)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(b, parse)
-	if err != nil {
-		return err
-	}
-	return nil
+func buildRespJSON(b []byte, parse interface{}) error {
+	err := json.Unmarshal(b, parse)
+	return err
 }

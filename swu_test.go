@@ -15,8 +15,27 @@ func TestNewSWU(t *testing.T) {
 
 func TestTemplates(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	err := api.Emails()
+	a, err := api.Emails()
 	if err != nil {
 		t.Error(err)
 	}
+	log.Print(a)
+}
+
+func TestGetTemplate(t *testing.T) {
+	api := New(os.Getenv("SWU_KEY"))
+	a, err := api.GetTemplate("tem_bRKXvNLAXTG8EGxhut3gCe")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Print(a)
+}
+
+func TestGetTemplateVersion(t *testing.T) {
+	api := New(os.Getenv("SWU_KEY"))
+	a, err := api.GetTemplateVersion("tem_bRKXvNLAXTG8EGxhut3gCe", "ver_Hh35dZhnffghidEy6VeHKL")
+	if err != nil {
+		t.Error(err)
+	}
+	log.Print(a)
 }
