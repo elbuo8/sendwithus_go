@@ -1,6 +1,7 @@
 package swu
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -20,21 +21,21 @@ type SWUClient struct {
 }
 
 type SWUEmail struct {
-	ID       string       `json:"id"`
-	Tags     []string     `json:"tags"`
-	Created  int64        `json:"created"`
-	Versions []SWUVersion `json:"versions"`
-	Name     string       `json:"name"`
+	ID       string       `json:"id,omitempty"`
+	Tags     []string     `json:"tags,omitempty"`
+	Created  int64        `json:"created,omitempty"`
+	Versions []SWUVersion `json:"versions,omitempty"`
+	Name     string       `json:"name,omitempty"`
 }
 
 type SWUVersion struct {
-	Name      string `json:"name"`
-	ID        string `json:"id"`
-	Created   int64  `json:"created"`
-	HTML      string `json:"html"`
-	Text      string `json:"text"`
-	Subject   string `json:"subject"`
-	Published bool   `json:"published"`
+	Name      string `json:"name,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Created   int64  `json:"created,omitempty"`
+	HTML      string `json:"html,omitempty"`
+	Text      string `json:"text,omitempty"`
+	Subject   string `json:"subject,omitempty"`
+	Published bool   `json:"published,omitempty"`
 }
 
 type SWUError struct {
@@ -54,26 +55,36 @@ func New(apiKey string) *SWUClient {
 	}
 }
 
-func (c *SWUClient) Templates() ([]SWUEmail, error) {
+func (c *SWUClient) Templates() ([]*SWUEmail, error) {
 	return c.Emails()
 }
 
-func (c *SWUClient) Emails() ([]SWUEmail, error) {
-	var parse []SWUEmail
+func (c *SWUClient) Emails() ([]*SWUEmail, error) {
+	var parse []*SWUEmail
 	err := c.makeRequest("GET", "/templates", nil, &parse)
 	return parse, err
 }
 
-func (c *SWUClient) GetTemplate(id string) (SWUEmail, error) {
+func (c *SWUClient) GetTemplate(id string) (*SWUEmail, error) {
 	var parse SWUEmail
 	err := c.makeRequest("GET", "/templates/"+id, nil, &parse)
-	return parse, err
+	return &parse, err
 }
 
-func (c *SWUClient) GetTemplateVersion(id, version string) (SWUVersion, error) {
+func (c *SWUClient) GetTemplateVersion(id, version string) (*SWUVersion, error) {
 	var parse SWUVersion
 	err := c.makeRequest("GET", "/templates/"+id+"/versions/"+version, nil, &parse)
-	return parse, err
+	return &parse, err
+}
+
+func (c *SWUClient) UpdateTemplateVersion(id, version string, template *SWUVersion) (*SWUVersion, error) {
+	var parse SWUVersion
+	payload, err := json.Marshal(template)
+	if err != nil {
+		return nil, err
+	}
+	err = c.makeRequest("PUT", "/templates/"+id+"/versions/"+version, bytes.NewReader(payload), &parse)
+	return &parse, err
 }
 
 func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result interface{}) error {
