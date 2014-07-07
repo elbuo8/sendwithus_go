@@ -21,11 +21,11 @@ type SWUClient struct {
 }
 
 type SWUTemplate struct {
-	ID       string       `json:"id,omitempty"`
-	Tags     []string     `json:"tags,omitempty"`
-	Created  int64        `json:"created,omitempty"`
-	Versions []SWUVersion `json:"versions,omitempty"`
-	Name     string       `json:"name,omitempty"`
+	ID       string        `json:"id,omitempty"`
+	Tags     []string      `json:"tags,omitempty"`
+	Created  int64         `json:"created,omitempty"`
+	Versions []*SWUVersion `json:"versions,omitempty"`
+	Name     string        `json:"name,omitempty"`
 }
 
 type SWUVersion struct {
@@ -36,6 +36,35 @@ type SWUVersion struct {
 	Text      string `json:"text,omitempty"`
 	Subject   string `json:"subject,omitempty"`
 	Published bool   `json:"published,omitempty"`
+}
+
+type SWUEmail struct {
+	ID          string            `json:"email_id,omitempty"`
+	Recipient   SWURecipient      `json:"recipient,omitempty"`
+	CC          []*SWURecipient   `json:"cc,omitempty"`
+	BCC         []*SWURecipient   `json:"bcc,omitempty"`
+	Sender      *SWUSender        `json:"sender,omitempty"`
+	EmailData   map[string]string `json:"email_data,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	Inline      SWUAttachment     `json:"inline,omitempty"`
+	Files       []*SWUAttachment  `json:"files,omitempty"`
+	ESPAccount  string            `json:"esp_account,omitempty"`
+	VersionName string            `json:"version_name,omitempty"`
+}
+
+type SWURecipient struct {
+	Address string `json:"address,omitempty"`
+	Name    string `json:"name,omitempty"`
+}
+
+type SWUSender struct {
+	SWURecipient
+	ReplyTo string `json:"reply_to,omitempty"`
+}
+
+type SWUAttachment struct {
+	ID   string `json:"id,omitempty"`
+	Data string `json:"data,omitempty"`
 }
 
 type SWUError struct {
