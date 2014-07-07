@@ -97,6 +97,16 @@ func (c *SWUClient) CreateTemplate(template *SWUVersion) (*SWUTemplate, error) {
 	return &parse, err
 }
 
+func (c *SWUClient) CreateTemplateVersion(id string, template *SWUVersion) (*SWUTemplate, error) {
+	var parse SWUTemplate
+	payload, err := json.Marshal(template)
+	if err != nil {
+		return nil, err
+	}
+	err = c.makeRequest("POST", "/templates/"+id+"/versions", bytes.NewReader(payload), &parse)
+	return &parse, err
+}
+
 func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result interface{}) error {
 	r, _ := http.NewRequest(method, c.URL+endpoint, body)
 	r.SetBasicAuth(c.apiKey, "")

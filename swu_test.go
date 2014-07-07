@@ -66,3 +66,16 @@ func TestCreateTemplate(t *testing.T) {
 	}
 	log.Print(a)
 }
+
+func TestCreateTemplateVersion(t *testing.T) {
+	api := New(os.Getenv("SWU_KEY"))
+	a, err := api.CreateTemplateVersion("tem_nXAPFGXQXFKcibJHdm9PZ9", &SWUVersion{
+		Name:    "test",
+		Subject: "test",
+		Text:    "ALOHA1",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	log.Print(a)
+}
