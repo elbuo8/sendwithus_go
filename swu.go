@@ -20,7 +20,7 @@ type SWUClient struct {
 	URL    string
 }
 
-type SWUEmail struct {
+type SWUTemplate struct {
 	ID       string       `json:"id,omitempty"`
 	Tags     []string     `json:"tags,omitempty"`
 	Created  int64        `json:"created,omitempty"`
@@ -55,18 +55,18 @@ func New(apiKey string) *SWUClient {
 	}
 }
 
-func (c *SWUClient) Templates() ([]*SWUEmail, error) {
+func (c *SWUClient) Templates() ([]*SWUTemplate, error) {
 	return c.Emails()
 }
 
-func (c *SWUClient) Emails() ([]*SWUEmail, error) {
-	var parse []*SWUEmail
+func (c *SWUClient) Emails() ([]*SWUTemplate, error) {
+	var parse []*SWUTemplate
 	err := c.makeRequest("GET", "/templates", nil, &parse)
 	return parse, err
 }
 
-func (c *SWUClient) GetTemplate(id string) (*SWUEmail, error) {
-	var parse SWUEmail
+func (c *SWUClient) GetTemplate(id string) (*SWUTemplate, error) {
+	var parse SWUTemplate
 	err := c.makeRequest("GET", "/templates/"+id, nil, &parse)
 	return &parse, err
 }
@@ -84,6 +84,16 @@ func (c *SWUClient) UpdateTemplateVersion(id, version string, template *SWUVersi
 		return nil, err
 	}
 	err = c.makeRequest("PUT", "/templates/"+id+"/versions/"+version, bytes.NewReader(payload), &parse)
+	return &parse, err
+}
+
+func (c *SWUClient) CreateTemplate(template *SWUVersion) (*SWUTemplate, error) {
+	var parse SWUTemplate
+	payload, err := json.Marshal(template)
+	if err != nil {
+		return nil, err
+	}
+	err = c.makeRequest("POST", "/templates", bytes.NewReader(payload), &parse)
 	return &parse, err
 }
 
