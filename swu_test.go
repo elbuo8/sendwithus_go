@@ -1,7 +1,6 @@
 package swu
 
 import (
-	"log"
 	"os"
 	"testing"
 )
