@@ -15,34 +15,31 @@ func TestNewSWU(t *testing.T) {
 
 func TestTemplates(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.Emails()
+	_, err := api.Emails()
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
 }
 
 func TestGetTemplate(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.GetTemplate("tem_bRKXvNLAXTG8EGxhut3gCe")
+	_, err := api.GetTemplate("tem_bRKXvNLAXTG8EGxhut3gCe")
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
 }
 
 func TestGetTemplateVersion(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.GetTemplateVersion("tem_bRKXvNLAXTG8EGxhut3gCe", "ver_Hh35dZhnffghidEy6VeHKL")
+	_, err := api.GetTemplateVersion("tem_bRKXvNLAXTG8EGxhut3gCe", "ver_Hh35dZhnffghidEy6VeHKL")
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
 }
 
 func TestUpdateTemplateVersion(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.UpdateTemplateVersion("tem_bRKXvNLAXTG8EGxhut3gCe", "ver_Hh35dZhnffghidEy6VeHKL",
+	_, err := api.UpdateTemplateVersion("tem_bRKXvNLAXTG8EGxhut3gCe", "ver_Hh35dZhnffghidEy6VeHKL",
 		&SWUVersion{
 			Name:    "Test",
 			Subject: "Test",
@@ -51,12 +48,11 @@ func TestUpdateTemplateVersion(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
 }
 
 func TestCreateTemplate(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.CreateTemplate(&SWUVersion{
+	_, err := api.CreateTemplate(&SWUVersion{
 		Name:    "test",
 		Subject: "test",
 		Text:    "ALOHA",
@@ -64,12 +60,11 @@ func TestCreateTemplate(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
 }
 
 func TestCreateTemplateVersion(t *testing.T) {
 	api := New(os.Getenv("SWU_KEY"))
-	a, err := api.CreateTemplateVersion("tem_nXAPFGXQXFKcibJHdm9PZ9", &SWUVersion{
+	_, err := api.CreateTemplateVersion("tem_nXAPFGXQXFKcibJHdm9PZ9", &SWUVersion{
 		Name:    "test",
 		Subject: "test",
 		Text:    "ALOHA1",
@@ -77,5 +72,19 @@ func TestCreateTemplateVersion(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(a)
+}
+
+func TestSend(t *testing.T) {
+	api := New(os.Getenv("SWU_KEY"))
+	email := &SWUEmail{
+		ID: "tem_bRKXvNLAXTG8EGxhut3gCe",
+		Recipient: &SWURecipient{
+			Address: "yamil@sendgrid.com",
+		},
+		EmailData: make(map[string]string),
+	}
+	err := api.Send(email)
+	if err != nil {
+		t.Error(err)
+	}
 }

@@ -40,13 +40,13 @@ type SWUVersion struct {
 
 type SWUEmail struct {
 	ID          string            `json:"email_id,omitempty"`
-	Recipient   SWURecipient      `json:"recipient,omitempty"`
+	Recipient   *SWURecipient     `json:"recipient,omitempty"`
 	CC          []*SWURecipient   `json:"cc,omitempty"`
 	BCC         []*SWURecipient   `json:"bcc,omitempty"`
 	Sender      *SWUSender        `json:"sender,omitempty"`
 	EmailData   map[string]string `json:"email_data,omitempty"`
 	Tags        []string          `json:"tags,omitempty"`
-	Inline      SWUAttachment     `json:"inline,omitempty"`
+	Inline      *SWUAttachment    `json:"inline,omitempty"`
 	Files       []*SWUAttachment  `json:"files,omitempty"`
 	ESPAccount  string            `json:"esp_account,omitempty"`
 	VersionName string            `json:"version_name,omitempty"`
@@ -136,6 +136,15 @@ func (c *SWUClient) CreateTemplateVersion(id string, template *SWUVersion) (*SWU
 	return &parse, err
 }
 
+func (c *SWUClient) Send(email *SWUEmail) error {
+	payload, err := json.Marshal(email)
+	if err != nil {
+		return err
+	}
+	err = c.makeRequest("POST", "/send", bytes.NewReader(payload), nil)
+	return err
+}
+
 func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result interface{}) error {
 	r, _ := http.NewRequest(method, c.URL+endpoint, body)
 	r.SetBasicAuth(c.apiKey, "")
@@ -161,7 +170,10 @@ func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result 
 			Message: string(b),
 		}
 	}
-	return buildRespJSON(b, result)
+	if result != nil {
+		return buildRespJSON(b, result)
+	}
+	return nil
 }
 
 func buildRespJSON(b []byte, parse interface{}) error {
