@@ -46,7 +46,7 @@ type SWUEmail struct {
 	CC          []*SWURecipient   `json:"cc,omitempty"`
 	BCC         []*SWURecipient   `json:"bcc,omitempty"`
 	Sender      *SWUSender        `json:"sender,omitempty"`
-	EmailData   map[string]string `json:"email_data,omitempty"`
+	EmailData   interface{}       `json:"email_data,omitempty"`
 	Tags        []string          `json:"tags,omitempty"`
 	Inline      *SWUAttachment    `json:"inline,omitempty"`
 	Files       []*SWUAttachment  `json:"files,omitempty"`
