@@ -185,6 +185,15 @@ func (c *SWUClient) Send(email *SWUEmail) error {
 	return err
 }
 
+func (c *SWUClient) ActivateDripCampaign(id string, email *SWUEmail) error {
+	payload, err := json.Marshal(email)
+	if err != nil {
+		return err
+	}
+	err = c.makeRequest("POST", "/drip_campaigns/"+id+"/activate", bytes.NewReader(payload), nil)
+	return err
+}
+
 func (c *SWUClient) GetLogs(q *SWULogQuery) ([]*SWULog, error) {
 	var parse []*SWULog
 	payload, _ := query.Values(q)
