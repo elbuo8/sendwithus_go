@@ -54,6 +54,17 @@ type SWUEmail struct {
 	VersionName string            `json:"version_name,omitempty"`
 }
 
+type SWUDripCampaign struct {
+	Recipient   *SWURecipient     `json:"recipient,omitempty"`
+	CC          []*SWURecipient   `json:"cc,omitempty"`
+	BCC         []*SWURecipient   `json:"bcc,omitempty"`
+	Sender      *SWUSender        `json:"sender,omitempty"`
+	EmailData   map[string]string `json:"email_data,omitempty"`
+	Tags        []string          `json:"tags,omitempty"`
+	ESPAccount  string            `json:"esp_account,omitempty"`
+	Locale      string            `json:"locale,omitempty"`
+}
+
 type SWURecipient struct {
 	Address string `json:"address,omitempty"`
 	Name    string `json:"name,omitempty"`
@@ -185,8 +196,8 @@ func (c *SWUClient) Send(email *SWUEmail) error {
 	return err
 }
 
-func (c *SWUClient) ActivateDripCampaign(id string, email *SWUEmail) error {
-	payload, err := json.Marshal(email)
+func (c *SWUClient) ActivateDripCampaign(id string, dripCampaign *SWUDripCampaign) error {
+	payload, err := json.Marshal(dripCampaign)
 	if err != nil {
 		return err
 	}
