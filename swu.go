@@ -141,20 +141,17 @@ func (c *SWUClient) Templates() ([]*SWUTemplate, error) {
 
 func (c *SWUClient) Emails() ([]*SWUTemplate, error) {
 	var parse []*SWUTemplate
-	err := c.makeRequest("GET", "/templates", nil, &parse)
-	return parse, err
+	return parse, c.makeRequest("GET", "/templates", nil, &parse)
 }
 
 func (c *SWUClient) GetTemplate(id string) (*SWUTemplate, error) {
 	var parse SWUTemplate
-	err := c.makeRequest("GET", "/templates/"+id, nil, &parse)
-	return &parse, err
+	return &parse, c.makeRequest("GET", "/templates/"+id, nil, &parse)
 }
 
 func (c *SWUClient) GetTemplateVersion(id, version string) (*SWUVersion, error) {
 	var parse SWUVersion
-	err := c.makeRequest("GET", "/templates/"+id+"/versions/"+version, nil, &parse)
-	return &parse, err
+	return &parse, c.makeRequest("GET", "/templates/"+id+"/versions/"+version, nil, &parse)
 }
 
 func (c *SWUClient) UpdateTemplateVersion(id, version string, template *SWUVersion) (*SWUVersion, error) {
@@ -163,8 +160,7 @@ func (c *SWUClient) UpdateTemplateVersion(id, version string, template *SWUVersi
 	if err != nil {
 		return nil, err
 	}
-	err = c.makeRequest("PUT", "/templates/"+id+"/versions/"+version, bytes.NewReader(payload), &parse)
-	return &parse, err
+	return &parse, c.makeRequest("PUT", "/templates/"+id+"/versions/"+version, bytes.NewReader(payload), &parse)
 }
 
 func (c *SWUClient) CreateTemplate(template *SWUVersion) (*SWUTemplate, error) {
@@ -173,8 +169,7 @@ func (c *SWUClient) CreateTemplate(template *SWUVersion) (*SWUTemplate, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = c.makeRequest("POST", "/templates", bytes.NewReader(payload), &parse)
-	return &parse, err
+	return &parse, c.makeRequest("POST", "/templates", bytes.NewReader(payload), &parse)
 }
 
 func (c *SWUClient) CreateTemplateVersion(id string, template *SWUVersion) (*SWUTemplate, error) {
@@ -183,8 +178,7 @@ func (c *SWUClient) CreateTemplateVersion(id string, template *SWUVersion) (*SWU
 	if err != nil {
 		return nil, err
 	}
-	err = c.makeRequest("POST", "/templates/"+id+"/versions", bytes.NewReader(payload), &parse)
-	return &parse, err
+	return &parse, c.makeRequest("POST", "/templates/"+id+"/versions", bytes.NewReader(payload), &parse)
 }
 
 func (c *SWUClient) Send(email *SWUEmail) error {
@@ -192,8 +186,7 @@ func (c *SWUClient) Send(email *SWUEmail) error {
 	if err != nil {
 		return err
 	}
-	err = c.makeRequest("POST", "/send", bytes.NewReader(payload), nil)
-	return err
+	return c.makeRequest("POST", "/send", bytes.NewReader(payload), nil)
 }
 
 func (c *SWUClient) ActivateDripCampaign(id string, dripCampaign *SWUDripCampaign) error {
@@ -208,20 +201,17 @@ func (c *SWUClient) ActivateDripCampaign(id string, dripCampaign *SWUDripCampaig
 func (c *SWUClient) GetLogs(q *SWULogQuery) ([]*SWULog, error) {
 	var parse []*SWULog
 	payload, _ := query.Values(q)
-	err := c.makeRequest("GET", "/logs?"+payload.Encode(), nil, &parse)
-	return parse, err
+	return parse, c.makeRequest("GET", "/logs?"+payload.Encode(), nil, &parse)
 }
 
 func (c *SWUClient) GetLog(id string) (*SWULog, error) {
 	var parse SWULog
-	err := c.makeRequest("GET", "/logs/"+id, nil, &parse)
-	return &parse, err
+	return &parse, c.makeRequest("GET", "/logs/"+id, nil, &parse)
 }
 
 func (c *SWUClient) GetLogEvents(id string) (*SWULogEvent, error) {
 	var parse SWULogEvent
-	err := c.makeRequest("GET", "/logs/"+id+"/events", nil, &parse)
-	return &parse, err
+	return &parse, c.makeRequest("GET", "/logs/"+id+"/events", nil, &parse)
 }
 
 func (c *SWUClient) ResendLog(id string) (*SWULogResend, error) {
@@ -265,6 +255,5 @@ func (c *SWUClient) makeRequest(method, endpoint string, body io.Reader, result 
 }
 
 func buildRespJSON(b []byte, parse interface{}) error {
-	err := json.Unmarshal(b, parse)
-	return err
+	return json.Unmarshal(b, parse)
 }
