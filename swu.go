@@ -60,6 +60,7 @@ type SWUDripCampaign struct {
 	BCC         []*SWURecipient   `json:"bcc,omitempty"`
 	Sender      *SWUSender        `json:"sender,omitempty"`
 	EmailData   map[string]string `json:"email_data,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
 	Tags        []string          `json:"tags,omitempty"`
 	ESPAccount  string            `json:"esp_account,omitempty"`
 	Locale      string            `json:"locale,omitempty"`
